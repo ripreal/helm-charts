@@ -879,6 +879,8 @@ grafana:
     #   targetLabel: nodename
     #   replacement: $1
     #   action: replace
+  server:
+    root_url: http://localhost:3000/grafana # this host can be localhost
 
 ## Component scraping the kube api server
 ##
@@ -2148,13 +2150,17 @@ prometheus:
   #     someoneelse:$apr1$DMZX2Z4q$6SbQIfyuLQd.xmo/P0m2c.
 
   ingress:
-    enabled: false
+    enabled: true
 
     # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
-    # ingressClassName: nginx
+    ingressClassName: nginx
 
-    annotations: {}
+    annotations:       
+      kubernetes.io/ingress.class: "nginx"
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+      nginx.ingress.kubernetes.io/use-regex: "true"
+
     labels: {}
 
     ## Redirect ingress to an additional defined port on the service
@@ -2165,11 +2171,13 @@ prometheus:
     ##
     # hosts:
     #   - prometheus.domain.com
-    hosts: []
+    hosts: 
+      - www.sw-k8s.com
 
     ## Paths to use for ingress rules - one path should match the prometheusSpec.routePrefix
     ##
-    paths: []
+    path: /grafana/?(.*)
+
     # - /
 
     ## For Kubernetes >= 1.18 you should specify the pathType (determines how Ingress paths should be matched)
